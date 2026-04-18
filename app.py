@@ -26,7 +26,7 @@ if st.button("🔄 Reset App"):
 
 # ---------------- UI ----------------
 st.title("🎓 Student Performance Predictor")
-st.caption("💡 Click Reset to clear everything")
+st.caption("💡 Smooth + Fast + Reset Working")
 
 # ---------------- SLIDERS ----------------
 study_hours = st.slider("📚 Study Hours", 0, 16, key="study_hours")
@@ -51,9 +51,14 @@ X = np.array([
 
 y = np.array([40,70,85,75,90,55,78,88,60])
 
-# ---------------- TRAIN MODEL ----------------
-model = XGBRegressor(n_estimators=120)
-model.fit(X, y)
+# ---------------- FAST MODEL (CACHE) ----------------
+@st.cache_resource
+def load_model():
+    model = XGBRegressor(n_estimators=50)  # reduced for speed
+    model.fit(X, y)
+    return model
+
+model = load_model()
 
 # ---------------- PREDICT ----------------
 if st.button("🎯 Predict Marks"):
@@ -66,13 +71,14 @@ if st.button("🎯 Predict Marks"):
         stress
     ]])
 
-    st.success(f"📊 Predicted Marks: {prediction[0]:.2f}")
+    result = prediction[0]
 
-    st.progress(int(prediction[0]))
+    st.success(f"📊 Predicted Marks: {result:.2f}")
+    st.progress(int(result))
 
-    if prediction[0] < 50:
+    if result < 50:
         st.error("⚠️ Poor Performance")
-    elif prediction[0] < 75:
+    elif result < 75:
         st.warning("🙂 Average Performance")
     else:
         st.success("🔥 Excellent Performance")
