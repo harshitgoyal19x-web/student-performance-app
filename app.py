@@ -26,7 +26,7 @@ if st.button("🔄 Reset App"):
 
 # ---------------- UI ----------------
 st.title("🎓 Student Performance Predictor")
-st.caption("💡 Smooth + Fast + Reset Working")
+st.caption("💡 Enter realistic values to get better prediction")
 
 # ---------------- SLIDERS ----------------
 study_hours = st.slider("📚 Study Hours", 0, 16, key="study_hours")
@@ -51,10 +51,10 @@ X = np.array([
 
 y = np.array([40,70,85,75,90,55,78,88,60])
 
-# ---------------- FAST MODEL (CACHE) ----------------
+# ---------------- FAST MODEL ----------------
 @st.cache_resource
 def load_model():
-    model = XGBRegressor(n_estimators=50)  # reduced for speed
+    model = XGBRegressor(n_estimators=50)
     model.fit(X, y)
     return model
 
@@ -62,23 +62,36 @@ model = load_model()
 
 # ---------------- PREDICT ----------------
 if st.button("🎯 Predict Marks"):
-    prediction = model.predict([[
-        study_hours,
-        attendance,
-        sleep_hours,
-        prev_marks,
-        consistency,
-        stress
-    ]])
 
-    result = prediction[0]
+    # ❗ VALIDATION (IMPORTANT FIX)
+    if study_hours == 0 and attendance == 0 and prev_marks == 0:
+        st.error("⚠️ Please enter valid data (study, attendance, marks) before predicting!")
 
-    st.success(f"📊 Predicted Marks: {result:.2f}")
-    st.progress(int(result))
+    elif study_hours < 1:
+        st.warning("⚠️ Study hours too low for prediction")
 
-    if result < 50:
-        st.error("⚠️ Poor Performance")
-    elif result < 75:
-        st.warning("🙂 Average Performance")
+    elif attendance < 30:
+        st.warning("⚠️ Attendance too low")
+
     else:
-        st.success("🔥 Excellent Performance")
+        prediction = model.predict([[
+            study_hours,
+            attendance,
+            sleep_hours,
+            prev_marks,
+            consistency,
+            stress
+        ]])
+
+        result = prediction[0]
+
+        st.success(f"📊 Predicted Marks: {result:.2f}")
+        st.progress(int(result))
+
+        # Performance
+        if result < 50:
+            st.error("⚠️ Poor Performance")
+        elif result < 75:
+            st.warning("🙂 Average Performance")
+        else:
+            st.success("🔥 Excellent Performance")
