@@ -70,7 +70,7 @@ if st.button("🎯 Predict Marks"):
     elif study_hours < 1:
         st.warning("⚠️ Study hours too low for prediction")
 
-    elif attendance < 30:
+    elif attendance < 75:
         st.warning("⚠️ Attendance too low")
 
     else:
